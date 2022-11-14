@@ -1,0 +1,703 @@
+#include <stdio.h>
+
+ 
+
+// 导入头文件
+
+#include <string.h>
+
+ 
+
+// 定义宏(联系人数组的长度,姓名长度,电话号码长度)
+
+#define LEN 100
+
+#define NAME_LEN 22
+
+#define TELNUM_LEN 16
+
+ 
+
+// 定义联系人结构体
+
+typedef struct {
+
+    // 定义联系人姓名
+
+    char name[NAME_LEN];
+
+    // 定义联系人电话号码
+
+    char telNum[TELNUM_LEN];
+
+    
+
+} Person;   // 给结构体起别名
+
+ 
+
+// 定义联系人数组
+
+Person contacts[LEN];
+
+ 
+
+// 定义变量保存联系人数量
+
+int totalContactCount = 0;  // 初始化为0,表示通讯录没有人
+
+ 
+
+// 定义变量保存文件名称
+
+char *filePath = "telbook.data";
+
+ 
+
+// 定义函数并声明
+
+void doAdd();           // 添加联系人
+
+void doDelete();        // 删除联系人
+
+void doUpdate();        // 更新联系人
+
+void doList();          // 列出所有联系人
+
+void doSearchByName();  // 按姓名搜索联系人
+
+void init();            // 初始化
+
+void writeToFile();     // 写入文件
+
+ 
+
+ 
+
+int main(int argc, const char * argv[]) {
+
+    
+
+    // 定义变量接收用户输入的编号
+
+    int num = 0;
+
+    // 初始化系统
+
+    init();
+
+    
+
+    int flag = 1;   // 定义flag为退出的标记
+
+    
+
+    while (flag) {
+
+        
+
+        // 打印功能界面
+
+        printf("\n\n**************************\n");
+
+        printf("****** 欢迎使用通讯录 ******\n");
+
+        printf("****** 1、添加联系人  ******\n");
+
+        printf("****** 2、删除联系人  ******\n");
+
+        printf("****** 3、修改联系人  ******\n");
+
+        printf("****** 4、查看所有联系人 ****\n");
+
+        printf("****** 5、搜索联系人  ******\n");
+
+        printf("****** 6、退出系统    ******\n");
+
+        printf("**************************\n\n");
+
+        
+
+        printf("请输入1-6之间的序号，选择要执行的功能\n");
+
+        
+
+        // 接收用户输入的编号
+
+        scanf("%d", &num);
+
+        // 判断用户输入的编号是否合法
+
+        if (num < 1 || num > 6) {
+
+            
+
+            printf("输入有误!\n");
+
+            
+
+        }else{
+
+        
+
+            // 如果输入的编号合法,选择相应的功能
+
+            switch (num) {
+
+                case 1:
+
+                    doAdd();
+
+                    break;
+
+                case 2:
+
+                    doDelete();
+
+                    break;
+
+                case 3:
+
+                    doUpdate();
+
+                    break;
+
+                case 4:
+
+                    doList();
+
+                    break;
+
+                case 5:
+
+                    doSearchByName();
+
+                    break;
+
+                case 6:
+
+                    // 推出系统
+
+                    printf("正在退出系统...\n");
+
+                    printf("系统已经退出!\n");
+
+                    // reurn 0
+
+                    flag = 0;   // flag = 1
+
+                    break;
+
+                    
+
+                default:
+
+                    break;
+
+            }
+
+        
+
+        }
+
+    }
+
+    
+
+    return 0;
+
+}
+
+ 
+
+ 
+
+// 添加联系人函数
+
+void doAdd(){
+
+ 
+
+    printf("您正在执行的是添加联系人的操作:\n");
+
+    
+
+    // 定义数组接收联系人信息
+
+    char name[NAME_LEN];
+
+    char telNum[TELNUM_LEN];
+
+    // 提示用户输入联系人信息
+
+    printf("请输入联系人姓名:   [*联系人姓名中间不能有空格]\n");
+
+    // 接收联系人信息
+
+    scanf("%s", name);
+
+    // 提示输入电话号码信息
+
+    printf("请输入联系人电话号码:[*联系人电话中间不能有空格]\n");
+
+    // 接收电话号码
+
+    scanf("%s",telNum);
+
+    
+
+    // 再次提示用户是否要添加联系人
+
+    int nn;     // 用nn代表用户输入的时确定还是取消
+
+    printf("您确定要添加这个联系人吗? 0.取消  1.确认\n");
+
+    scanf("%d", &nn);
+
+    if (nn) {
+
+        // nn == 1 保存联系人到联系人数组中
+
+        // 利用字符串copy函数
+
+        strcpy(contacts[totalContactCount].name, name);
+
+        strcpy(contacts[totalContactCount].telNum, telNum);
+
+        // copy以后让联系人的个数自增
+
+        totalContactCount++;
+
+        // 把最新的数组写入到文件中
+
+        writeToFile();
+
+    }
+
+    
+
+}
+
+ 
+
+// 删除联系人函数
+
+void doDelete(){
+
+ 
+
+    printf("您正在执行的是添加联系人的操作:\n");
+
+    // 列出当前所有联系人
+
+    doList();
+
+    // 提示用户输入要删除的联系人的编号(一次只能删一个)
+
+    printf("请输入要删除的联系人的编号(一次只能删一个):\n");
+
+    int nn; // 用nn代表要删除的联系人编号
+
+    scanf("%d", &nn);
+
+    
+
+    // 判断输入的编号是否合法
+
+    if (nn < 1 || nn > totalContactCount) {
+
+        
+
+        // 如果编号不合法,return
+
+        return ;
+
+    }
+
+    
+
+    // 定义变量表示是否删除联系人
+
+    int confirm = 0;
+
+    // 提示用户是否删除
+
+    printf("联系人删除后将无法恢复,请确认是否要删除: 0.取消  1.确认\n");
+
+    scanf("%d", &confirm);
+
+    if (confirm) {
+
+        // 用户选择删除联系人
+
+        // 判断要删除的联系人是否是最后一个
+
+        if (nn == totalContactCount) {
+
+            
+
+            // 总人数 - 1  相当于不读取最后一个联系人的信息
+
+            totalContactCount--;
+
+            
+
+        }else{
+
+            // 移动元素
+
+            // 从nn开始,后面的每个元素都覆盖前一个元素的信息
+
+            for (int i = nn; i < totalContactCount; i++) {
+
+                
+
+                // 数组元素信息覆盖
+
+                contacts[i - 1] = contacts[i];
+
+            }
+
+            // 循环结束 总人数 - 1
+
+            totalContactCount--;
+
+        }
+
+        // 把修改后的联系人数组同步到文件中
+
+        writeToFile();
+
+    }
+
+    
+
+}
+
+ 
+
+// 修改联系人函数
+
+void doUpdate(){
+
+ 
+
+    printf("您正在执行的是修改联系人的操作:\n");
+
+    // 列出当前所有联系人
+
+    doList();
+
+    // 提示用户输入要修改的联系人的编号
+
+    printf("请输入要修改的联系人的编号:\n");
+
+    int nn; // 用nn代表要修改的联系人编号
+
+    scanf("%d", &nn);
+
+    
+
+    // 判断输入的编号是否合法
+
+    if (nn < 1 || nn > totalContactCount) {
+
+        
+
+        // 如果编号不合法,return
+
+        return ;
+
+    }
+
+    
+
+    // 定义联系人信息存储修改的联系人的信息
+
+    char name[NAME_LEN];
+
+    char telNum[TELNUM_LEN];
+
+    
+
+    // 提示用户输入联系人信息
+
+    printf("请输入联系人姓名:   [*联系人姓名中间不能有空格]\n");
+
+    // 接收联系人信息
+
+    scanf("%s", name);
+
+    // 提示输入电话号码信息
+
+    printf("请输入联系人电话号码:[*联系人电话中间不能有空格]\n");
+
+    // 接收电话号码
+
+    scanf("%s",telNum);
+
+ 
+
+    // 提示用户再次确认修改
+
+    printf("联系人修改后将无法恢复,请确认是否要修改: 0.取消  1.确认");
+
+    int confirm = 0;
+
+    scanf("%d", &confirm);
+
+    
+
+    // 判断用户是否确认修改
+
+    if (confirm) {
+
+        
+
+        // 用户确认修改联系人
+
+        // 利用字符串copy函数
+
+        strcpy(contacts[nn - 1].name, name);
+
+        strcpy(contacts[nn - 1].telNum, telNum);
+
+        // 同步写入文件中
+
+        writeToFile();
+
+        
+
+    }
+
+}
+
+ 
+
+// 列出当前全部联系人函数
+
+void doList(){
+
+ 
+
+    printf("您正在执行的是查询所有联系人的操作:\n");
+
+    // 先判断totalContactCount是否等于0
+
+    if (totalContactCount == 0) {
+
+        // 联系人为空
+
+        printf("去年买了个表,联系人全丢了!\n");
+
+        
+
+    }else{
+
+    
+
+        // 打印联系人信息的表头
+
+        printf("编号\t\t\t姓名\t\t\t电话\n");
+
+        // 联系人不为空,打印所有联系人
+
+        for (int i = 0; i < totalContactCount; i++) {
+
+            
+
+            // 遍历输出所有联系人的信息
+
+            printf("%d\t\t\t%s\t\t\t%s\t\t\t\n", i + 1, contacts[i].name, contacts[i].telNum);
+
+        }
+
+    
+
+    }
+
+    
+
+}
+
+ 
+
+// 按姓名查找联系人函数
+
+void doSearchByName(){
+
+ 
+
+    printf("您正在执行的是搜索联系人的操作:\n");
+
+    
+
+    // 提示用户输入一个联系人的姓名
+
+    printf("请输入联系人姓名:   [*联系人姓名中间不能有空格]\n");
+
+    // 接收用户输入的信息
+
+    char name[NAME_LEN];
+
+    scanf("%s", name);
+
+    
+
+    // 遍历联系人数组
+
+    int i;
+
+    for (i = 0; i < totalContactCount; i++) {
+
+        
+
+        // 进行字符串比较
+
+        if (strcmp(contacts[i].name, name) == 0) {
+
+            
+
+            // 此时说明找到了
+
+            // 输出联系人信息
+
+            printf("您要查找的联系人信息为: %s的电话是: %s\n", name, contacts[i].telNum);
+
+            // 找到以后,跳出循环
+
+            break;
+
+        }
+
+    
+
+    }
+
+    // 如果没有找到,提示用户
+
+    if (i == totalContactCount) {
+
+        
+
+        printf("Sorry, 查无此人!\n");
+
+    }
+
+    
+
+}
+
+ 
+
+// 初始化函数
+
+void init(){
+
+ 
+
+    printf("系统正在初始化...\n");
+
+    
+
+    // 定义文件指针,尝试打开文件
+
+    FILE *fp = fopen(filePath, "r");
+
+    // 如果能打开,说明文件存在
+
+    if (fp != NULL) {
+
+        // 读取联系人的数量
+
+        fread(&totalContactCount, sizeof(totalContactCount), 1, fp);
+
+        // 根据联系人数量循环把联系人信息读取出来
+
+        for (int i = 0; i < totalContactCount; i++) {
+
+            // 读取联系人数组中的信息
+
+            fread(&contacts[i], sizeof(Person), 1, fp);
+
+        }
+
+    }else{
+
+        // 文件打开失败
+
+        // 创建文件
+
+        fp = fopen(filePath, "w");
+
+        // 写入联系人的数量(已经在全局变量中初始化为0)
+
+        fwrite(&totalContactCount, sizeof(totalContactCount), 1, fp);
+
+        
+
+        printf("联系人数据文件创建成功\n");
+
+    }
+
+    // 关闭文件指针
+
+    fclose(fp);
+
+    fp = NULL;
+
+    
+
+    printf("系统初始化完成!\n");
+
+    
+
+}
+
+ 
+
+// 写入文件函数
+
+void writeToFile(){
+
+    
+
+    // 打开文件
+
+    FILE *fp = fopen(filePath, "w");
+
+    // 判断是否打开成功
+
+    if (fp != NULL) {
+
+        
+
+        // 先把联系人的数量写入文件中
+
+        fwrite(&totalContactCount, sizeof(totalContactCount), 1, fp);
+
+        // 把每个联系人的数据都写入文件中
+
+        for (int i = 0; i < totalContactCount; i++) {
+
+            // 循环每次把一个人的数据写入联系人数组中
+
+            fwrite(&contacts[i], sizeof(Person), 1, fp);
+
+        }
+
+        // 循环结束说明联系人已经全部写入联系人数组中
+
+        printf("数据更新完成!\n");
+
+    }
+
+    // 关闭文件
+
+    fclose(fp);
+
+    fp = NULL;
+
+ 
+
+}
